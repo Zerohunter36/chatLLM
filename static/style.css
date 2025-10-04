@@ -499,6 +499,7 @@ body {
   .app {
     position: relative;
     min-height: 100dvh;
+    flex-direction: column;
   }
 
   /* Sidebar becomes overlay */
@@ -538,6 +539,7 @@ body {
   .main-area {
     width: 100%;
     margin-left: 0;
+    min-height: 100dvh;
   }
 
   /* Chat container full width on mobile */
@@ -551,6 +553,24 @@ body {
     padding: 0;
   }
 
+  .main-header {
+    position: sticky;
+    top: 0;
+    padding: 16px;
+    background: #ffffff;
+    z-index: 600;
+  }
+
+  .chat-header-avatar {
+    display: none;
+  }
+
+  .main-title {
+    justify-content: flex-start;
+    font-size: 20px;
+    text-align: left;
+  }
+
   /* Suggestions in a single column */
   .suggestions {
     display: grid;
@@ -558,6 +578,25 @@ body {
     gap: 12px;
     width: 100%;
     padding: 0 16px;
+  }
+
+  .greeting {
+    align-items: flex-start;
+    text-align: left;
+    padding: 32px 20px;
+    gap: 24px;
+  }
+
+  .greeting-avatar {
+    display: none;
+  }
+
+  .suggestion {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
   }
 
   /* Let flexbox handle chat area height on mobile. It will fill available space */
@@ -576,12 +615,18 @@ body {
 
   /* The message form will naturally stay at the bottom due to flexbox layout. */
   .message-form {
-    /* No special positioning needed on mobile */
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    row-gap: 12px;
+    column-gap: 12px;
   }
 
   /* Show toggle icon always on mobile */
   .toggle-sidebar {
     display: block;
+    font-size: 22px;
   }
 
   /* Adjust sizes for conversation list and inputs */
@@ -591,22 +636,41 @@ body {
 
   .chat-area {
     padding: 12px;
+    padding-bottom: 20px;
   }
 
   .message-form input[type="text"] {
-    font-size: 14px;
+    font-size: 16px;
+    grid-column: 2 / 3;
+    width: 100%;
   }
 
   .message-form button {
-    font-size: 14px;
+    font-size: 16px;
+  }
+
+  .message-form .controls {
+    grid-column: 1 / 2;
+  }
+
+  .message-form .model-select {
+    grid-column: 1 / 4;
+    width: 100%;
+  }
+
+  .message-form .send-btn {
+    grid-column: 3 / 4;
+    justify-self: end;
   }
 
   /* Allow message bubbles to use more width on small screens */
   .message {
     max-width: 100%;
+    font-size: 15px;
   }
 
   .model-select {
     font-size: 14px;
+    margin-left: 0;
   }
 }
