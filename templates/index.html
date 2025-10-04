@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nubacom AI Chat</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar with conversations and new chat button -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='nubacom_2.png') }}" alt="Nubacom Logo" class="nuba-logo" />
+                <button id="new-chat-btn" class="new-chat">+ New chat</button>
+            </div>
+            <ul id="conversation-list" class="conversation-list">
+                <!-- Conversation items will be populated by chat.js -->
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    {% if session.get('username') %}
+                        {{ session['username'] }}
+                        <a href="/logout" style="margin-left: 6px; color: #ec472c;">Salir</a>
+                    {% endif %}
+                </div>
+            </div>
+        </aside>
+        <!-- Backdrop for mobile sidebar -->
+        <div id="mobile-backdrop" class="backdrop"></div>
+        <!-- Main content area -->
+        <main id="main-area" class="main-area">
+            <div class="main-header">
+                <button id="toggle-sidebar" class="toggle-sidebar">☰</button>
+                <!-- Avatar of the assistant displayed in the header -->
+                <img src="{{ url_for('static', filename='sentia.jpg') }}" alt="Sentia" class="chat-header-avatar">
+                <h1 class="main-title">Nubacom AI Chat</h1>
+            </div>
+            <!-- Greeting section shown before the first message -->
+            <section id="greeting" class="greeting">
+                <img class="greeting-avatar" src="{{ url_for('static', filename='sentia.jpg') }}" alt="Sentia">
+                <h2>Hola, ¿en qué puedo ayudarte hoy?</h2>
+                <div class="suggestions">
+                    <button class="suggestion">Cuéntame un dato curioso sobre el Imperio Romano</button>
+                    <button class="suggestion">Muéstrame un fragmento de código de un header fijo en una página web</button>
+                    <button class="suggestion">Ayúdame a estudiar vocabulario para un examen</button>
+                    <button class="suggestion">Dame ideas para organizar el arte de mis hijos</button>
+                </div>
+            </section>
+            <!-- Chat container shown after starting a conversation -->
+            <div id="chat-container" class="chat-container hidden">
+                <div class="chat-area" id="chat-area">
+                    <!-- Messages will appear here -->
+                </div>
+                <!-- Message form sits inside chat container so it stays anchored at bottom -->
+                <form id="message-form" class="message-form">
+                    <div class="controls">
+                        <button type="button" id="upload-btn" title="Adjuntar archivo" class="icon-btn"><img src="{{ url_for('static', filename='icons/paperclip.png') }}" alt="Adjuntar" /></button>
+                        <button type="button" id="voice-btn" title="Usar voz" class="icon-btn"><img src="{{ url_for('static', filename='icons/microphone.png') }}" alt="Voz" /></button>
+                    </div>
+                    <input id="message-input" type="text" placeholder="Escribe un mensaje…" autocomplete="off" />
+                    <select id="model-select" class="model-select"></select>
+                    <button type="submit" class="send-btn"><img src="{{ url_for('static', filename='icons/send.png') }}" alt="Enviar" /></button>
+                    <input id="file-input" type="file" multiple style="display: none;" />
+                </form>
+            </div>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+</body>
+</html>

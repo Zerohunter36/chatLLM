@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro – Nubacom AI Chat</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      background-image: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url("{{ url_for('static', filename='slide-1.jpg') }}");
+      background-size: cover;
+      background-position: center;
+    }
+    .logo-container {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .logo-container img {
+      max-width: 300px;
+      width: 80%;
+      height: auto;
+    }
+    .welcome-text {
+      text-align: center;
+      color: #0d274d;
+      margin-top: 16px;
+      font-weight: bold;
+    }
+    .auth-container {
+      background-color: #ffffff;
+      padding: 32px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 90%;
+      margin-top: 24px;
+    }
+    .auth-container h1 {
+      margin: 0 0 16px 0;
+      color: #0d274d;
+      font-size: 24px;
+      text-align: center;
+    }
+    .auth-container form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .auth-container input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .auth-container button {
+      padding: 12px;
+      background-color: #ec472c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .auth-container button:hover {
+      background-color: #c63b23;
+    }
+    .auth-container .links {
+      text-align: center;
+      margin-top: 12px;
+    }
+    .auth-container .links a {
+      color: #ec472c;
+      text-decoration: none;
+    }
+    .error {
+      color: #ec472c;
+      font-size: 14px;
+      text-align: center;
+    }
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 24px;
+      }
+      .auth-container input {
+        font-size: 14px;
+      }
+      .auth-container button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <img src="{{ url_for('static', filename='nubacom_1.png') }}" alt="Nubacom" />
+  </div>
+  <div class="welcome-text">
+    Bienvenido al Chat Inteligente
+  </div>
+  <div class="auth-container">
+    <h1>Registro</h1>
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="post">
+      <input type="text" name="username" placeholder="Usuario" required />
+      <input type="password" name="password" placeholder="Contraseña" required />
+      <input type="password" name="confirm" placeholder="Confirmar contraseña" required />
+      <button type="submit">Crear cuenta</button>
+    </form>
+    <div class="links">
+      ¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a>
+    </div>
+  </div>
+</body>
+</html>

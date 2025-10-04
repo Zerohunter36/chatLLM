@@ -1,0 +1,612 @@
+/* Basic styling for the chat interface. The colour palette loosely follows the dark blue and orange theme from NubaCom. */
+html,
+body {
+  /* Ensure the root elements occupy the full viewport.  Using both
+     height:100% and min-height:100vh prevents the page from growing
+     taller than the screen while still filling the available space. */
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #e5e9f0;
+  color: #0d274d;
+}
+
+/* Application container */
+/* Root app container fills the viewport */
+/* The root application container fills the viewport and prevents
+   unwanted page scrolling.  A flex layout allows the sidebar and
+   main area to sit side‑by‑side without pushing the page height. */
+.app {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Sidebar styles */
+.sidebar {
+  width: 260px;
+  background-color: #02040a;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease, transform 0.3s ease;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nuba-logo {
+  max-width: 100%;
+  height: 40px;
+  margin-bottom: 12px;
+}
+
+.new-chat {
+  background-color: #ec472c;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.new-chat:hover {
+  background-color: #c63b23;
+}
+
+/* Conversation list styles */
+.conversation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.conversation-list li {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.conversation-list li.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.conversation-list li:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Delete conversation button */
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.delete-btn img {
+  width: 16px;
+  height: 16px;
+  filter: invert(1);
+}
+
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  font-size: 24px;
+}
+
+/* Main area styles */
+/* Main area takes remaining space, arranges its children vertically and prevents external scroll */
+/* The main area holds the header and chat container.  By using
+   flexbox and min-height:0 we ensure the chat container can grow
+   and shrink without causing the page to scroll vertically. */
+.main-area {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  background-color: #f8fafc;
+  overflow: hidden;
+}
+
+.main-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  /* Allow the elements inside to shrink naturally without forcing
+     space between them.  The title will center via flex-grow on
+     larger screens if desired. */
+  justify-content: flex-start;
+}
+
+.toggle-sidebar {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #0d274d;
+}
+
+.main-title {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  color: #0d274d;
+}
+
+/* Avatar displayed in the top chat header next to the title */
+.chat-header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Greeting section */
+.greeting {
+  /* Allow the greeting section to fill available space and center its content */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: #0d274d;
+}
+
+.greeting-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.suggestion {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  max-width: 220px;
+  color: #0d274d;
+}
+
+.suggestion:hover {
+  background-color: #f1f5f9;
+}
+
+/* Hide chat until conversation */
+.hidden {
+  display: none;
+}
+
+/* Wrapper containing avatar and chat */
+.wrapper {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+}
+
+/* Left pane for assistant image */
+.avatar-pane {
+  flex: 0 0 200px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.assistant-img {
+  width: 180px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat container styling inspired by NubaCom palette */
+/* Chat container fills available space and stacks its subheader, chat area and form */
+/* The chat container fills the remaining space in the main area.
+   It uses flexbox so the chat area can scroll while the form stays
+   pinned to the bottom.  We use min-height:0 to avoid flexbox
+   children overflowing their parent. */
+.chat-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+
+/* Header with logo */
+.chat-header {
+  background-color: #0d274d; /* dark blue */
+  color: #fff;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.logo-nuba {
+  color: #0d274d;
+  background-color: #fff;
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin-right: 2px;
+}
+
+.logo-com {
+  color: #ec472c; /* orange accent */
+}
+
+/* Chat area */
+/* The scrolling message area grows to fill available space and
+   allows vertical scrolling of messages only.  Padding and gap
+   provide separation between messages. */
+.chat-area {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+/* Message bubbles */
+/* Individual message bubbles.  Use a larger maximum width on desktop
+   so messages don't run edge‑to‑edge, but still allow full width on
+   smaller screens. */
+.message {
+  max-width: 90%;
+  padding: 8px 12px;
+  border-radius: 16px;
+  line-height: 1.4;
+  position: relative;
+  word-wrap: break-word;
+  white-space: pre-wrap; /* preserve line breaks in assistant replies */
+}
+
+.message.user {
+  align-self: flex-end;
+  background-color: #0d274d; /* dark blue */
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.message.assistant {
+  align-self: flex-start;
+  background-color: #f2f7fc; /* very light blue/gray */
+  color: #0d274d;
+  border-bottom-left-radius: 4px;
+}
+
+/* Typing indicator styles. When a message has the 'typing' class, it
+   visually indicates that the assistant is processing. The text is
+   italicised and a lighter colour to distinguish it from normal
+   assistant messages. */
+.message.typing {
+  font-style: italic;
+  color: #888;
+  background-color: #f2f7fc;
+}
+
+/* Attachments display */
+.attachments {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.attachment {
+  max-width: 200px;
+  max-height: 200px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.attachment img,
+.attachment video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Message form */
+/* The message form sits at the bottom of the chat container and
+   does not shrink.  It respects safe areas on mobile devices. */
+.message-form {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  /* Ensure the message form respects safe area at the bottom on mobile devices */
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+}
+
+.message-form input[type="text"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.message-form input[type="text"]:focus {
+  border-color: #80bdff;
+}
+
+.message-form button {
+  background-color: #0d274d;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.message-form button:hover {
+  background-color: #082042;
+}
+
+/* Style for model selection dropdown */
+.model-select {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #f9f9fb;
+  color: #333;
+  margin-left: 8px;
+}
+
+.model-select:focus {
+  outline: none;
+  border-color: #4e3c9b;
+}
+
+/* Controls for attachments and voice */
+.controls {
+  display: flex;
+  gap: 6px;
+}
+
+/* Generic icon button used for attachments and voice */
+.icon-btn {
+  background-color: #f5f7fa;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.icon-btn:hover {
+  background-color: #e9eef5;
+}
+
+.icon-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+/* Send button with icon */
+.send-btn {
+  background-color: #0d274d;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.send-btn:hover {
+  background-color: #082042;
+}
+
+.send-btn img {
+  width: 18px;
+  height: 18px;
+  filter: invert(1);
+}
+
+/* Responsive adjustments for mobile screens */
+@media (max-width: 768px) {
+  /* App container repositioning */
+  .app {
+    position: relative;
+    min-height: 100dvh;
+  }
+
+  /* Sidebar becomes overlay */
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0; /* top:0; left:0; bottom:0 */
+    height: 100dvh;
+    width: 82vw;
+    max-width: 320px;
+    transform: translateX(-100%);
+    z-index: 1000;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Ignore collapsed width in mobile */
+  .sidebar.collapsed {
+    width: 82vw;
+  }
+
+  /* Backdrop for overlay (requires <div id="mobile-backdrop" class="backdrop"></div> in HTML) */
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 900;
+    display: none;
+  }
+
+  .backdrop.show {
+    display: block;
+  }
+
+  /* Main area occupies full width */
+  .main-area {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  /* Chat container full width on mobile */
+  .chat-container {
+    max-width: none;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  /* Suggestions in a single column */
+  .suggestions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  /* Let flexbox handle chat area height on mobile. It will fill available space */
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+  }
+
+  /* Chat area grows to fill remaining space */
+  .chat-area {
+    flex: 1 1 auto;
+    height: auto;
+  }
+
+  /* The message form will naturally stay at the bottom due to flexbox layout. */
+  .message-form {
+    /* No special positioning needed on mobile */
+  }
+
+  /* Show toggle icon always on mobile */
+  .toggle-sidebar {
+    display: block;
+  }
+
+  /* Adjust sizes for conversation list and inputs */
+  .conversation-list li {
+    font-size: 14px;
+  }
+
+  .chat-area {
+    padding: 12px;
+  }
+
+  .message-form input[type="text"] {
+    font-size: 14px;
+  }
+
+  .message-form button {
+    font-size: 14px;
+  }
+
+  /* Allow message bubbles to use more width on small screens */
+  .message {
+    max-width: 100%;
+  }
+
+  .model-select {
+    font-size: 14px;
+  }
+}
