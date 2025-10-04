@@ -184,8 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!res.ok) throw new Error('Error fetching conversations');
       const data = await res.json();
       conversations = data.conversations || [];
-      if (conversations.length > 0 && (currentConversationIndex === -1 || currentConversationIndex === undefined)) {
-        currentConversationIndex = conversations[0].id;
+      if (conversations.length > 0) {
+        const hasCurrent = conversations.some(conv => conv.id === currentConversationIndex);
+        if (!hasCurrent || currentConversationIndex === -1 || currentConversationIndex === undefined) {
+          const latest = conversations.reduce((acc, conv) => (conv.id > acc.id ? conv : acc), conversations[0]);
+          currentConversationIndex = latest.id;
+        }
       }
       renderConversationList();
     } catch (err) {
@@ -358,7 +362,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Render conversation list and attach click handlers
   function renderConversationList() {
     conversationList.innerHTML = '';
-    conversations.forEach((conv) => {
+    const ordered = [...conversations].sort((a, b) => b.id - a.id);
+    ordered.forEach((conv) => {
       const li = document.createElement('li');
       li.dataset.id = conv.id;
       if (conv.id === currentConversationIndex) {
