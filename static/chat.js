@@ -21,14 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const suggestionButtons= document.querySelectorAll('.suggestion');
   // Backdrop for mobile overlay
   const backdrop         = document.getElementById('mobile-backdrop');
-  // Composer UI elements
-  const composerMenuButton = document.getElementById('composer-menu-button');
-  const composerMenu       = document.getElementById('composer-menu');
-  const modelMenuContainer = document.getElementById('model-menu-container');
-  const modelMenuTrigger   = document.getElementById('model-menu-trigger');
-  const modelMenu          = document.getElementById('model-menu');
-  const modelMenuList      = document.getElementById('model-menu-list');
-  const currentModelLabel  = document.getElementById('current-model-label');
 
   // Temporary list of attachments selected by the user. Each entry
   // contains a `name`, `data_url` and optional `url` returned from /api/upload.
@@ -88,129 +80,32 @@ document.addEventListener('DOMContentLoaded', () => {
   let conversations = [];
   let currentConversationIndex = -1;
 
+  function parseConversationId(value) {
+    const numeric = Number.parseInt(value, 10);
+    return Number.isNaN(numeric) ? null : numeric;
+  }
+
+  function getOrderedConversations() {
+    return [...conversations].sort((a, b) => {
+      const aId = parseConversationId(a.id);
+      const bId = parseConversationId(b.id);
+      if (aId !== null && bId !== null) {
+        return bId - aId;
+      }
+      const aTimeRaw = a.updated_at ? Date.parse(a.updated_at) : NaN;
+      const bTimeRaw = b.updated_at ? Date.parse(b.updated_at) : NaN;
+      const aTime = Number.isNaN(aTimeRaw) ? 0 : aTimeRaw;
+      const bTime = Number.isNaN(bTimeRaw) ? 0 : bTimeRaw;
+      if (aTime !== bTime) {
+        return bTime - aTime;
+      }
+      return String(b.id ?? '').localeCompare(String(a.id ?? ''));
+    });
+  }
+
   // Scroll chat area to the bottom
   function scrollToBottom() {
     chatArea.scrollTop = chatArea.scrollHeight;
-  }
-
-  function openComposerMenu() {
-    if (!composerMenu) return;
-    composerMenu.classList.add('is-visible');
-    if (composerMenuButton) {
-      composerMenuButton.setAttribute('aria-expanded', 'true');
-    }
-  }
-
-  function closeModelMenu() {
-    if (modelMenuContainer) {
-      modelMenuContainer.classList.remove('open');
-    }
-    if (modelMenuTrigger) {
-      modelMenuTrigger.setAttribute('aria-expanded', 'false');
-    }
-  }
-
-  function closeComposerMenu() {
-    if (composerMenu) {
-      composerMenu.classList.remove('is-visible');
-    }
-    if (composerMenuButton) {
-      composerMenuButton.setAttribute('aria-expanded', 'false');
-    }
-    closeModelMenu();
-  }
-
-  function toggleComposerMenu() {
-    if (!composerMenu) return;
-    if (composerMenu.classList.contains('is-visible')) {
-      closeComposerMenu();
-    } else {
-      openComposerMenu();
-    }
-  }
-
-  function openModelMenu() {
-    if (!modelMenuContainer) return;
-    modelMenuContainer.classList.add('open');
-    if (modelMenuTrigger) {
-      modelMenuTrigger.setAttribute('aria-expanded', 'true');
-    }
-  }
-
-  function updateModelLabel(label) {
-    if (!currentModelLabel) return;
-    currentModelLabel.textContent = label || '';
-  }
-
-  function updateModelMenuActive(selectedModel) {
-    if (!modelMenuList) return;
-    const items = modelMenuList.querySelectorAll('.composer-submenu-item');
-    items.forEach(item => {
-      const { model } = item.dataset;
-      item.classList.toggle('is-active', model === selectedModel);
-    });
-  }
-
-  function renderModelMenu(models = []) {
-    if (!modelMenuList) return;
-    modelMenuList.innerHTML = '';
-    if (!models.length) {
-      const empty = document.createElement('div');
-      empty.classList.add('composer-submenu-empty');
-      empty.textContent = 'Sin modelos disponibles';
-      modelMenuList.appendChild(empty);
-      updateModelLabel('');
-      return;
-    }
-
-    models.forEach(model => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'composer-submenu-item';
-      button.dataset.model = model;
-      const icon = document.createElement('span');
-      icon.className = 'menu-icon model';
-      icon.setAttribute('aria-hidden', 'true');
-      const labelSpan = document.createElement('span');
-      labelSpan.textContent = model;
-      button.appendChild(icon);
-      button.appendChild(labelSpan);
-      button.addEventListener('click', event => {
-        event.preventDefault();
-        applyModelChange(model, { closeMenus: true });
-      });
-      modelMenuList.appendChild(button);
-    });
-
-    updateModelMenuActive(currentModel);
-  }
-
-  function applyModelChange(model, options = {}) {
-    if (!modelSelect || !model) return;
-    const { announce = true, closeMenus = false } = options;
-    const previousModel = currentModel;
-
-    if (modelSelect.value !== model) {
-      modelSelect.value = model;
-    }
-
-    currentModel = model;
-    updateModelLabel(model);
-    updateModelMenuActive(model);
-
-    if (closeMenus) {
-      closeComposerMenu();
-    }
-
-    if (announce && previousModel !== model) {
-      fetch('/api/reset_history', { method: 'POST' })
-        .then(() => {
-          appendMessage('assistant', `Modelo cambiado a ${currentModel}`);
-        })
-        .catch(() => {
-          appendMessage('assistant', 'Modelo cambiado pero no se pudo reiniciar la conversación en el servidor.');
-        });
-    }
   }
 
   /**
@@ -269,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
    * Fetch available models from the backend and populate the dropdown.
    */
   async function populateModels() {
-    if (!modelSelect) return;
     try {
       const res = await fetch('/api/models');
       if (!res.ok) throw new Error('Error fetching models');
@@ -282,15 +176,24 @@ document.addEventListener('DOMContentLoaded', () => {
         opt.textContent = model;
         modelSelect.appendChild(opt);
       });
-      renderModelMenu(models);
       if (models.length > 0) {
-        applyModelChange(models[0], { announce: false });
+        currentModel = models[0];
+        modelSelect.value = currentModel;
       }
+      modelSelect.addEventListener('change', (e) => {
+        currentModel = e.target.value;
+        // Reset the conversation on the server when changing models
+        fetch('/api/reset_history', { method: 'POST' })
+          .then(() => {
+            appendMessage('assistant', `Modelo cambiado a ${currentModel}`);
+          })
+          .catch(() => {
+            appendMessage('assistant', 'Modelo cambiado pero no se pudo reiniciar la conversación en el servidor.');
+          });
+      });
     } catch (err) {
       console.error(err);
       modelSelect.innerHTML = '<option value="">Sin modelos</option>';
-      renderModelMenu([]);
-      currentModel = null;
     }
   }
 
@@ -304,12 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!res.ok) throw new Error('Error fetching conversations');
       const data = await res.json();
       conversations = data.conversations || [];
-      if (conversations.length > 0) {
-        const hasCurrent = conversations.some(conv => conv.id === currentConversationIndex);
-        if (!hasCurrent || currentConversationIndex === -1 || currentConversationIndex === undefined) {
-          const latest = conversations.reduce((acc, conv) => (conv.id > acc.id ? conv : acc), conversations[0]);
-          currentConversationIndex = latest.id;
-        }
+      if (conversations.length > 0 && (currentConversationIndex === -1 || currentConversationIndex === undefined)) {
+        const ordered = getOrderedConversations();
+        currentConversationIndex = ordered[0]?.id ?? conversations[0].id;
       }
       renderConversationList();
     } catch (err) {
@@ -319,75 +219,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (composerMenuButton) {
-    composerMenuButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      toggleComposerMenu();
-    });
-  }
-
-  if (messageInput) {
-    messageInput.addEventListener('focus', () => {
-      closeComposerMenu();
-    });
-  }
-
-  if (modelMenuTrigger) {
-    modelMenuTrigger.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (!composerMenu || !composerMenu.classList.contains('is-visible')) {
-        openComposerMenu();
-      }
-      if (modelMenuContainer && modelMenuContainer.classList.contains('open')) {
-        closeModelMenu();
-      } else {
-        openModelMenu();
-      }
-    });
-  }
-
-  if (composerMenu) {
-    composerMenu.addEventListener('click', (event) => {
-      event.stopPropagation();
-    });
-  }
-
-  document.addEventListener('click', (event) => {
-    if (!composerMenu || !composerMenuButton) return;
-    if (!composerMenu.contains(event.target) && !composerMenuButton.contains(event.target)) {
-      closeComposerMenu();
-    }
-  });
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeComposerMenu();
-    }
-  });
-
-  if (modelSelect) {
-    modelSelect.addEventListener('change', (event) => {
-      applyModelChange(event.target.value);
-    });
-  }
-
   // Handle file upload button click
-  if (uploadBtn && fileInput) {
-    uploadBtn.addEventListener('click', (event) => {
-      event.preventDefault();
-      closeComposerMenu();
-      fileInput.click();
-    });
+  uploadBtn.addEventListener('click', () => fileInput.click());
 
-    // When files are selected, send them to the backend to get data URLs
-    fileInput.addEventListener('change', async (event) => {
-      const files = Array.from(event.target.files);
-      if (!files.length) return;
-      const formData = new FormData();
-      files.forEach(f => formData.append('files', f));
-      try {
+  // When files are selected, send them to the backend to get data URLs
+  fileInput.addEventListener('change', async (event) => {
+    const files = Array.from(event.target.files);
+    if (!files.length) return;
+    const formData = new FormData();
+    files.forEach(f => formData.append('files', f));
+    try {
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -399,12 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
         appendMessage('user', '[Archivos adjuntos preparados]', data.files);
       }
       fileInput.value = '';
-      } catch (err) {
-        console.error(err);
-        alert('Hubo un problema al subir los archivos');
-      }
-    });
-  }
+    } catch (err) {
+      console.error(err);
+      alert('Hubo un problema al subir los archivos');
+    }
+  });
 
   // Speech recognition
   let recognition;
@@ -423,7 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
   voiceBtn.addEventListener('click', () => {
-    closeComposerMenu();
     if (!recognition) {
       alert('Tu navegador no soporta reconocimiento de voz');
       return;
@@ -434,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle form submission to send a message
   messageForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    closeComposerMenu();
     const text = messageInput.value.trim();
     if (!text && attachmentsToSend.length === 0) {
       return;
@@ -483,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle new chat button
   if (newChatBtn) {
     newChatBtn.addEventListener('click', () => {
-      closeComposerMenu();
       fetch('/api/new_chat', { method: 'POST' })
         .then(response => response.json())
         .then(data => {
@@ -545,8 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Render conversation list and attach click handlers
   function renderConversationList() {
     conversationList.innerHTML = '';
-    const ordered = [...conversations].sort((a, b) => b.id - a.id);
-    ordered.forEach((conv) => {
+    const orderedConversations = getOrderedConversations();
+    orderedConversations.forEach((conv) => {
       const li = document.createElement('li');
       li.dataset.id = conv.id;
       if (conv.id === currentConversationIndex) {

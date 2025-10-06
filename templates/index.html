@@ -54,44 +54,22 @@
                     <!-- Messages will appear here -->
                 </div>
                 <!-- Message form sits inside chat container so it stays anchored at bottom -->
-                <form id="message-form" class="message-form">
-                    <div class="composer" role="group" aria-label="Enviar mensaje">
-                        <div class="composer-menu-wrapper">
-                            <button type="button" id="composer-menu-button" class="composer-menu-button" aria-haspopup="true" aria-expanded="false">
-                                <span aria-hidden="true">+</span>
-                                <span class="sr-only">Abrir opciones adicionales</span>
-                            </button>
-                            <div id="composer-menu" class="composer-menu" role="menu" aria-labelledby="composer-menu-button">
-                                <button type="button" id="upload-btn" class="composer-menu-item" role="menuitem">
-                                    <span class="menu-icon clip" aria-hidden="true"></span>
-                                    <span>Agregar fotos y archivos</span>
-                                </button>
-                                <div id="model-menu-container" class="composer-menu-item has-submenu" role="none">
-                                    <button type="button" id="model-menu-trigger" class="submenu-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
-                                        <span class="menu-icon library" aria-hidden="true"></span>
-                                        <span>Modelos disponibles</span>
-                                        <span id="current-model-label" class="model-chip"></span>
-                                        <span class="submenu-arrow" aria-hidden="true">›</span>
-                                    </button>
-                                    <div id="model-menu" class="composer-submenu" role="menu">
-                                        <div id="model-menu-list"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <form id="message-form" class="message-form" autocomplete="off">
+                    <div class="message-form-inner">
+                        <button type="button" id="upload-btn" title="Adjuntar archivo" class="control-btn">
+                            <img src="{{ url_for('static', filename='icons/paperclip.png') }}" alt="Adjuntar" />
+                        </button>
                         <input id="message-input" type="text" placeholder="Escribe un mensaje…" autocomplete="off" />
-                        <div class="composer-actions">
-                            <button type="button" id="voice-btn" class="composer-action-button" title="Usar voz">
-                                <img src="{{ url_for('static', filename='icons/microphone.png') }}" alt="Voz" />
-                            </button>
-                            <button type="submit" class="composer-send-button" title="Enviar">
-                                <span class="icon-arrow" aria-hidden="true"></span>
-                                <span class="sr-only">Enviar mensaje</span>
-                            </button>
-                        </div>
+                        <button type="button" id="voice-btn" title="Usar voz" class="control-btn">
+                            <img src="{{ url_for('static', filename='icons/microphone.png') }}" alt="Voz" />
+                        </button>
+                        <button type="submit" class="send-btn">
+                            <span>Enviar</span>
+                            <img src="{{ url_for('static', filename='icons/send.png') }}" alt="Enviar" />
+                        </button>
                     </div>
+                    <select id="model-select" class="model-select"></select>
                     <input id="file-input" type="file" multiple hidden />
-                    <select id="model-select" class="model-select" hidden></select>
                 </form>
             </div>
         </main>
